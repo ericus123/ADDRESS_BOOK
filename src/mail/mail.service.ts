@@ -86,7 +86,7 @@ export class MailService {
             </head>
             <body>
                 <p>Hi ${firstName},</p>
-                <p>Thanks for creating an account in FortressEye.</p>
+                <p>Thanks for creating an account in AddressBook.</p>
                 <p>Click <a href="${process.env.FRONTEND_URL}/dashboard?verify=${token}" target="_blank">here</a> to verify your account</p>
             </body>
             </html>
@@ -125,11 +125,11 @@ export class MailService {
       <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Invitation to Join FortressEye</title>
+          <title>Invitation to Join AddressBook</title>
       </head>
       <body>
           <p>Hello,</p>
-          <p>You've been invited to join FortressEye.</p>
+          <p>You've been invited to join AddressBook.</p>
           <p>Click <a href="${process.env.FRONTEND_URL}/invitation?token=${token}" target="_blank">here</a> to join the system</p>
       </body>
       </html>

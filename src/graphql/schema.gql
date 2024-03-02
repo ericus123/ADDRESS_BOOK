@@ -12,11 +12,27 @@ type AuthResponse {
   refreshToken: String!
 }
 
-input CompleteProfileInput {
-  avatar: String
-  bio: String
-  phoneNumber: String
-  username: String
+type Contact {
+  contactInfos: [ContactInfo!]
+  firstName: String!
+  id: ID!
+  lastName: String!
+  user: User
+  userId: ID
+}
+
+type ContactInfo {
+  contact: Contact
+  contactId: String
+  id: ID!
+  infoType: String!
+  value: String!
+}
+
+input ContactInput {
+  contactInfos: [IContactInfo!]!
+  firstName: String!
+  lastName: String!
 }
 
 """
@@ -29,11 +45,28 @@ input GetUserInput {
   value: String!
 }
 
+input IContact {
+  contactInfos: [IContactInfo!]
+  firstName: String!
+  id: ID! = "40ad4eed-f189-4b52-b0cb-5019b8909db3"
+  lastName: String!
+  user: IUser
+  userId: ID
+}
+
+input IContactInfo {
+  contact: IContact
+  contactId: String
+  id: ID! = "dca8743d-330f-49ec-a8a3-3ed23717b57a"
+  infoType: String!
+  value: String!
+}
+
 input IRole {
   createdAt: DateTime
   deletedAt: DateTime
   description: String
-  id: ID! = "ed6d54a8-89c7-483c-b213-b1d423e0298e"
+  id: ID! = "16bc2e72-b7f7-4bbe-9274-6b6f0e88a30a"
   roleName: String!
   updatedAt: DateTime
 }
@@ -41,17 +74,14 @@ input IRole {
 input IUser {
   accessRights: String! = "USER"
   avatar: String
-  bio: String
   createdAt: DateTime!
   deletedAt: DateTime
   email: String
   firstName: String!
-  id: ID! = "3672e78f-eacc-4553-a7fb-8b1a851bec03"
-  isComplete: Boolean! = false
+  id: ID! = "2e37fd94-a699-4106-b7e0-ca8b8db10423"
   isVerified: Boolean! = false
   lastName: String!
   password: String!
-  phoneNumber: String
   role: IRole
   updatedAt: DateTime!
   username: String
@@ -69,7 +99,14 @@ type Mutation {
   SignupUser(input: SignupInput!): AuthResponse!
   UpdateRole(id: String!, role: RoleInput!): Role!
   VerifyUser(token: String!): AuthResponse!
-  completeProfile(email: String!, input: CompleteProfileInput!): User!
+  createContact(input: ContactInput!): Contact!
+  createContactInfo(contactId: String!, input: IContactInfo!): ContactInfo!
+  deleteContact(id: String!): Boolean!
+  deleteContactInfo(id: String!): Boolean!
+  mergeDuplicates(contactId: String!): Boolean!
+  updateContact(id: String!, input: ContactInput!): Contact!
+  updateContactInfo(id: String!, input: IContactInfo!): ContactInfo!
+  updateContacts(ids: [String!]!, input: IContact!): [Contact!]!
   updateProfile(input: ProfileInput!): User!
 }
 
@@ -87,6 +124,9 @@ type Query {
   GetRoles: [Role!]!
   GetUser(input: GetUserInput!): User!
   GetUsers: [User!]!
+  contact(id: String!): Contact!
+  contacts(id: String!): [Contact!]!
+  getDuplicates(contactId: String!): [Contact!]!
 }
 
 type Role {
@@ -118,17 +158,14 @@ input SignupInput {
 type User {
   accessRights: String!
   avatar: String
-  bio: String
   createdAt: DateTime!
   deletedAt: DateTime
   email: String
   firstName: String!
   id: ID!
-  isComplete: Boolean!
   isVerified: Boolean!
   lastName: String!
   password: String!
-  phoneNumber: String
   role: Role
   updatedAt: DateTime!
   username: String

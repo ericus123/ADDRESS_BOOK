@@ -89,15 +89,11 @@ export class RoleService {
   }
 
   async getRoleByName(roleName: RoleName): Promise<Role> {
-    // try {
     return await this.roleModel.findOne({
       where: {
         roleName
       }
     });
-    // } catch (error) {
-    //   throw new NotFoundException("Role not found");
-    // }
   }
 
   async initializeRoles(): Promise<void> {
