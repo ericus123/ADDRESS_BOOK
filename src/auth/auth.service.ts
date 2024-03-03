@@ -1,10 +1,7 @@
 import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import { InjectModel } from "@nestjs/sequelize";
 import { CacheService } from "../cache/cache.service";
 import HashingService from "../crypto/hashing.service";
 import { JwtService } from "../jwt/jwt.service";
-import { RoleName } from "../role/role.model";
-import { User } from "../user/user.model";
 import { UserService } from "../user/user.service";
 import { AuthResponse, SigninInput, SignupInput } from "../user/user.types";
 import { AuthErrors } from "./constants";
@@ -13,7 +10,6 @@ export type TokenData = {
   sub: string;
   email: string;
   isVerified: boolean;
-  role?: RoleName;
   firstName: string;
   lastName: string;
   avatar?: string;
@@ -23,8 +19,6 @@ export class AuthService {
   logger = new Logger("Auth Service");
   constructor(
     private readonly userService: UserService,
-    @InjectModel(User)
-    private readonly userModel: typeof User,
     private readonly hashingService: HashingService,
     private readonly cacheService: CacheService,
     private jwtService: JwtService
@@ -38,7 +32,7 @@ export class AuthService {
       });
 
       if (!user) {
-        throw new UnauthorizedException(AuthErrors.UNKNOWN_USER);
+        throw new UnauthorizedException(AuthErrors.INVALID_CREDENTIALS);
       }
 
       const isMatch = await this.hashingService.isMatch({
@@ -53,7 +47,6 @@ export class AuthService {
         sub: user.id,
         email: user.email,
         isVerified: user.isVerified,
-        role: user.role.roleName,
         firstName: user.firstName,
         lastName: user.lastName,
         avatar: user.avatar
@@ -85,12 +78,11 @@ export class AuthService {
       value: res.email
     });
     try {
-      const { email, isVerified, role, id, firstName, lastName, avatar } = user;
+      const { email, isVerified, id, firstName, lastName, avatar } = user;
       const { accessToken, refreshToken } =
         await this.jwtService.generateAuthTokens({
           email,
           sub: id,
-          role: role.roleName,
           isVerified,
           firstName,
           lastName,

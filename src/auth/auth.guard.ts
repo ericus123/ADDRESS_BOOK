@@ -4,11 +4,8 @@ import {
   Injectable,
   UnauthorizedException
 } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
 import { GqlExecutionContext } from "@nestjs/graphql";
 import { JwtService } from "../jwt/jwt.service";
-import { RoleName } from "../role/role.model";
-import { ROLES_KEY } from "./auth.decorators";
 import { AuthService } from "./auth.service";
 import { AuthErrors } from "./constants";
 
@@ -16,7 +13,6 @@ import { AuthErrors } from "./constants";
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
-    private reflector: Reflector,
     private readonly authService: AuthService
   ) {}
 
@@ -70,23 +66,6 @@ export class AuthGuard implements CanActivate {
       res.setHeader("Authorization", `Bearer ${token}`);
     }
 
-    const userRole = payload?.data?.role;
-
-    if (!userRole) {
-      throw new UnauthorizedException(AuthErrors.INVALID_ROLES_OR_PERMISSIONS);
-    }
-    const requiredRoles = this.reflector.get<RoleName[]>(
-      ROLES_KEY,
-      context.getHandler()
-    );
-    if (
-      requiredRoles &&
-      requiredRoles.length > 0 &&
-      !this.matchRoles(userRole, requiredRoles)
-    ) {
-      throw new UnauthorizedException(AuthErrors.INSUFFICIENT_ROLE);
-    }
-
     const isBlacklisted = await this.authService.isTokenBlacklisted({
       email: payload.data.email,
       token: accessToken
@@ -94,7 +73,7 @@ export class AuthGuard implements CanActivate {
     if (isBlacklisted) {
       res.setHeader("Authorization", null);
       res.setHeader("x-refresh-token", null);
-      throw new UnauthorizedException(AuthErrors.SESSION_EXIRED);
+      throw new UnauthorizedException(AuthErrors.SESSION_EXIPIRED);
     }
     request.userEmail = payload.data.email;
     request.token = accessToken;
@@ -107,9 +86,5 @@ export class AuthGuard implements CanActivate {
       return token[1];
     }
     return undefined;
-  }
-
-  private matchRoles(userRole: RoleName, requiredRoles: RoleName[]): boolean {
-    return requiredRoles.includes(userRole);
   }
 }

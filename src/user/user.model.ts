@@ -2,11 +2,9 @@ import { Field, ID, InputType, ObjectType } from "@nestjs/graphql";
 import { IsEmail, IsUrl, Length } from "class-validator";
 import { UUIDV4 } from "sequelize";
 import {
-  BelongsTo,
   Column,
   DataType,
   Default,
-  ForeignKey,
   Index,
   Model,
   PrimaryKey,
@@ -14,7 +12,6 @@ import {
   Unique
 } from "sequelize-typescript";
 import { v4 as uuidv4 } from "uuid";
-import { Role } from "../role/role.model";
 
 export enum AccessRights {
   USER = "USER",
@@ -84,14 +81,6 @@ export class User extends Model<User> {
   @Default(() => false)
   @Column({ type: DataType.BOOLEAN })
   isVerified: boolean;
-
-  @ForeignKey(() => Role)
-  @Column({ type: DataType.STRING })
-  roleId: string;
-
-  @Field(() => Role, { nullable: true })
-  @BelongsTo(() => Role)
-  role: Role;
 
   @Field()
   @Column({ type: DataType.DATE })

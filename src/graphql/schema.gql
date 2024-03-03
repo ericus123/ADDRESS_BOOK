@@ -2,21 +2,32 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input AssignRoleInput {
-  email: String!
-  roleName: String!
-}
-
 type AuthResponse {
   accessToken: String!
   refreshToken: String!
 }
 
-input CompleteProfileInput {
-  avatar: String
-  bio: String
-  phoneNumber: String
-  username: String
+type Contact {
+  contactInfos: [ContactInfo!]
+  firstName: String!
+  id: ID!
+  lastName: String!
+  user: User
+  userId: ID
+}
+
+type ContactInfo {
+  contact: Contact
+  contactId: String
+  id: ID!
+  infoType: String!
+  value: String!
+}
+
+input ContactInput {
+  contactInfos: [IContactInfo!]!
+  firstName: String!
+  lastName: String!
 }
 
 """
@@ -24,83 +35,56 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-input GetUserInput {
-  type: String!
-  value: String!
+input IContact {
+  contactInfos: [IContactInfo!]
+  firstName: String!
+  id: ID! = "3933eddf-4ca7-4ba4-b1bf-8f95a3668d4d"
+  lastName: String!
+  user: IUser
+  userId: ID
 }
 
-input IRole {
-  createdAt: DateTime
-  deletedAt: DateTime
-  description: String
-  id: ID! = "ed6d54a8-89c7-483c-b213-b1d423e0298e"
-  roleName: String!
-  updatedAt: DateTime
+input IContactInfo {
+  contact: IContact
+  contactId: String
+  id: ID! = "ec862993-fe3b-4515-869d-4a95bdd3792d"
+  infoType: String!
+  value: String!
 }
 
 input IUser {
   accessRights: String! = "USER"
   avatar: String
-  bio: String
   createdAt: DateTime!
   deletedAt: DateTime
   email: String
   firstName: String!
-  id: ID! = "3672e78f-eacc-4553-a7fb-8b1a851bec03"
-  isComplete: Boolean! = false
+  id: ID! = "f0a290e0-d14b-4a89-a22a-39a80b67b8ba"
   isVerified: Boolean! = false
   lastName: String!
   password: String!
-  phoneNumber: String
-  role: IRole
   updatedAt: DateTime!
   username: String
 }
 
 type Mutation {
-  AddRole(role: RoleInput!): Role!
-  AssignRole(input: AssignRoleInput!): Boolean!
-  DeleteRole(id: String!): Boolean!
-  RequestPasswordReset(email: String!): Boolean!
-  ResetPassword(password: String!, token: String!): Boolean!
-  SendVerification(email: String!): Boolean!
   Signin(input: SigninInput!): AuthResponse!
   SignoutUser: Boolean!
   SignupUser(input: SignupInput!): AuthResponse!
-  UpdateRole(id: String!, role: RoleInput!): Role!
-  VerifyUser(token: String!): AuthResponse!
-  completeProfile(email: String!, input: CompleteProfileInput!): User!
-  updateProfile(input: ProfileInput!): User!
-}
-
-input ProfileInput {
-  avatar: String
-  bio: String
-  firstName: String
-  lastName: String
-  phoneNumber: String
+  createContact(input: ContactInput!): Contact!
+  createContactInfo(contactId: String!, input: IContactInfo!): ContactInfo!
+  deleteContact(id: String!): Boolean!
+  deleteContactInfo(id: String!): Boolean!
+  mergeDuplicates(contactId: String!): Boolean!
+  updateContact(id: String!, input: ContactInput!): Contact!
+  updateContactInfo(id: String!, input: IContactInfo!): ContactInfo!
+  updateContacts(ids: [String!]!, input: IContact!): [Contact!]!
 }
 
 type Query {
-  GetProfile: User!
-  GetRole(id: String!): Role!
-  GetRoles: [Role!]!
-  GetUser(input: GetUserInput!): User!
-  GetUsers: [User!]!
-}
-
-type Role {
-  createdAt: DateTime
-  deletedAt: DateTime
-  description: String
-  id: ID!
-  roleName: String!
-  updatedAt: DateTime
-}
-
-input RoleInput {
-  description: String
-  roleName: String!
+  contact(id: String!): Contact!
+  contacts: [Contact!]!
+  getDuplicates(contactId: String!): [Contact!]!
 }
 
 input SigninInput {
@@ -118,18 +102,14 @@ input SignupInput {
 type User {
   accessRights: String!
   avatar: String
-  bio: String
   createdAt: DateTime!
   deletedAt: DateTime
   email: String
   firstName: String!
   id: ID!
-  isComplete: Boolean!
   isVerified: Boolean!
   lastName: String!
   password: String!
-  phoneNumber: String
-  role: Role
   updatedAt: DateTime!
   username: String
 }
